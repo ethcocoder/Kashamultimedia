@@ -41,7 +41,7 @@ export default function Login() {
 
         <div className="text-center" style={{ marginBottom: 'clamp(28px, 4vw, 40px)' }}>
           <div className="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center transition-all duration-300" style={{ background: 'rgba(201,169,110,0.1)', border: '1px solid rgba(201,169,110,0.15)' }}>
-            <Video className="w-7 h-7 text-[var(--gold)]" />
+            <img src="/logo.webp" alt="Kasha" className="w-full h-full object-contain" />
           </div>
           <h1 className="font-[var(--font-display)] font-bold text-white" style={{ fontSize: 'clamp(20px, 3vw, 24px)' }}>Admin Login</h1>
           <p className="text-sm mt-1.5" style={{ color: 'var(--gray-500)' }}>Kasha Multimedia CMS Dashboard</p>

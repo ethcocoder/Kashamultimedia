@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Scissors, Clock, DollarSign, Tag, Search, LayoutGrid, List, ToggleLeft, ToggleRight, Copy } from 'lucide-react';
+import { Plus, Pencil, Trash2, Play, Clock, DollarSign, Tag, Search, LayoutGrid, List, ToggleLeft, ToggleRight, Copy, Music, Video, Radio, BookOpen, Globe } from 'lucide-react';
 import { getAll, create, update, remove } from '../../services/firestore';
 import { useLanguage } from '../../contexts/LanguageContext';
 import Modal from '../../components/ui/Modal';
@@ -7,7 +7,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import LanguageToggle from '../../components/admin/LanguageToggle';
 import toast from 'react-hot-toast';
 
-const iconOptions = ['Scissors', 'Paintbrush', 'Sparkles', 'User', 'Droplets', 'Brush'];
+const iconOptions = ['Play', 'Music', 'Video', 'Radio', 'BookOpen', 'Globe', 'Sparkles', 'User', 'Droplets', 'Brush'];
 
 export default function AdminServices() {
   const { t, lang } = useLanguage();
@@ -15,7 +15,7 @@ export default function AdminServices() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [formLang, setFormLang] = useState('en');
-  const [form, setForm] = useState({ name: { en: '', am: '' }, description: { en: '', am: '' }, price: '', duration: '', icon: 'Scissors', status: 'published' });
+  const [form, setForm] = useState({ name: { en: '', am: '' }, description: { en: '', am: '' }, price: '', duration: '', icon: 'Play', status: 'published' });
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [viewMode, setViewMode] = useState('list');
@@ -41,7 +41,7 @@ export default function AdminServices() {
 
   const counts = { all: items.length, published: items.filter((i) => i.status === 'published').length, draft: items.filter((i) => i.status === 'draft').length };
 
-  const reset = () => { setForm({ name: { en: '', am: '' }, description: { en: '', am: '' }, price: '', duration: '', icon: 'Scissors', status: 'published' }); };
+  const reset = () => { setForm({ name: { en: '', am: '' }, description: { en: '', am: '' }, price: '', duration: '', icon: 'Play', status: 'published' }); };
   const openNew = () => { setEditing(null); reset(); setFormLang('en'); setOpen(true); };
   const openEdit = (item) => { setEditing(item); setForm({ ...item, name: item.name || { en: '', am: '' }, description: item.description || { en: '', am: '' } }); setFormLang('en'); setOpen(true); };
 
@@ -77,7 +77,7 @@ export default function AdminServices() {
       <div className="flex items-center justify-between" style={{ marginBottom: 'clamp(20px, 3vw, 28px)' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(201,169,110,0.1)', border: '1px solid rgba(201,169,110,0.15)' }}>
-            <Scissors className="w-5 h-5 text-[var(--gold)]" />
+            <Play className="w-5 h-5 text-[var(--gold)]" />
           </div>
           <div>
             <h1 className="font-[var(--font-display)] font-bold text-white" style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}>{t('services')}</h1>
@@ -114,7 +114,7 @@ export default function AdminServices() {
           {filtered.map((item, i) => (
             <div key={item.id} className="admin-list-item group" style={{ animationDelay: `${i * 0.03}s`, animation: 'fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.12)' }}>
-                <Scissors className="w-4 h-4 text-[var(--gold)]" />
+                <Play className="w-4 h-4 text-[var(--gold)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate" style={{ color: 'var(--white)' }}>{item.name?.[lang] || item.name?.en || ''}</p>
@@ -143,7 +143,7 @@ export default function AdminServices() {
             <div key={item.id} className="admin-glass p-4 group" style={{ animation: `fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 0.04}s forwards`, opacity: 0 }}>
               <div className="flex items-center justify-between mb-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.12)' }}>
-                  <Scissors className="w-5 h-5 text-[var(--gold)]" />
+                  <Play className="w-5 h-5 text-[var(--gold)]" />
                 </div>
                 <button onClick={() => toggleStatus(item)}>
                   {item.status === 'published' ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5 text-[var(--gray-700)]" />}
@@ -169,7 +169,7 @@ export default function AdminServices() {
 
       {filtered.length === 0 && (
         <div className="admin-empty">
-          <div className="admin-empty-icon"><Scissors className="w-7 h-7" /></div>
+          <div className="admin-empty-icon"><Play className="w-7 h-7" /></div>
           <p className="admin-empty-title">{search || filter !== 'all' ? 'No matching services' : 'No services yet'}</p>
           <p className="admin-empty-desc">{search || filter !== 'all' ? 'Try adjusting your filters.' : 'Add your first service to get started.'}</p>
         </div>
@@ -187,7 +187,7 @@ export default function AdminServices() {
             <div><label className="admin-label">{t('serviceDuration')}</label><input type="number" value={form.duration || ''} onChange={(e) => setForm({ ...form, duration: e.target.value })} className="admin-input" placeholder="30" /></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className="admin-label">{t('serviceIcon')}</label><select value={form.icon || 'Scissors'} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="admin-input">{iconOptions.map((ic) => <option key={ic} value={ic}>{ic}</option>)}</select></div>
+            <div><label className="admin-label">{t('serviceIcon')}</label><select value={form.icon || 'Play'} onChange={(e) => setForm({ ...form, icon: e.target.value })} className="admin-input">{iconOptions.map((ic) => <option key={ic} value={ic}>{ic}</option>)}</select></div>
             <div><label className="admin-label">{t('status')}</label><select value={form.status || 'published'} onChange={(e) => setForm({ ...form, status: e.target.value })} className="admin-input"><option value="published">{t('published')}</option><option value="draft">{t('draft')}</option></select></div>
           </div>
           <div className="flex gap-3 pt-2">

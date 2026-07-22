@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getPublished } from '../services/firestore';
-import { Scissors, Paintbrush, Sparkles, User, Droplets, Brush } from 'lucide-react';
+import { Play, BookOpen, Music, Video, Radio, Globe } from 'lucide-react';
 
-const iconMap = { Scissors, Paintbrush, Sparkles, User, Droplets, Brush };
+const iconMap = { Play, BookOpen, Music, Video, Radio, Globe };
 
 export default function Services() {
   const { t, lang } = useLanguage();
@@ -14,14 +14,14 @@ export default function Services() {
   return (
     <section className="section">
       <div className="text-center anim-fade-up" style={{ marginBottom: 'clamp(32px, 5vw, 64px)' }}>
-        <p className="label mb-3">{t('barbershop')}</p>
+        <p className="label mb-3">{t('pillarsTitle')}</p>
         <h1 className="heading-lg">{t('servicesTitle')}</h1>
         <p className="text-sm text-[var(--gray-500)] mx-auto mt-4" style={{ maxWidth: '480px' }}>{t('servicesSubtitle')}</p>
         <div className="divider" style={{ marginTop: 'clamp(20px, 3vw, 32px)' }} />
       </div>
       <div className="grid-auto">
         {services.map((s, i) => {
-          const Icon = iconMap[s.icon] || Scissors;
+          const Icon = iconMap[s.icon] || Play;
           return (
             <div key={s.id} className="card card-pad anim-fade-up" style={{ animationDelay: `${i * 0.06}s` }}>
               <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-[var(--gold-dim)] border border-[var(--gold-border)] flex items-center justify-center" style={{ marginBottom: 'clamp(14px, 2vw, 20px)' }}>
@@ -37,7 +37,7 @@ export default function Services() {
           );
         })}
       </div>
-      {services.length === 0 && <p className="text-center text-[var(--gray-700)] py-16 text-sm">No services available yet.</p>}
+      {services.length === 0 && <p className="text-center text-[var(--gray-700)] py-16 text-sm">No content segments available yet.</p>}
     </section>
   );
 }

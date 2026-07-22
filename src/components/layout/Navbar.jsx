@@ -4,15 +4,9 @@ import { Moon, Sun, CalendarDays, Phone, ArrowRight, X } from 'lucide-react';
 import { useDarkMode } from '../../contexts/DarkModeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-function ScissorsLogo() {
+function KashaLogo() {
   return (
-    <svg className="logo-scissors" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="6" cy="6" r="3" />
-      <circle cx="6" cy="18" r="3" />
-      <line x1="20" y1="4" x2="8.12" y2="15.88" />
-      <line x1="14.47" y1="14.48" x2="20" y2="20" />
-      <line x1="8.12" y1="8.12" x2="12" y2="12" />
-    </svg>
+    <img src="/logo.webp" alt="Kasha Multimedia" className="w-full h-full object-contain" />
   );
 }
 
@@ -132,11 +126,11 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
               <div className="relative w-9 h-9 rounded-xl bg-[var(--gold-dim)] border border-[var(--gold-border)] flex items-center justify-center text-[var(--gold)] transition-all duration-300 group-hover:bg-[var(--gold)] group-hover:border-[var(--gold)] group-hover:shadow-[0_0_24px_rgba(201,169,110,0.25)]">
-                <ScissorsLogo />
+                <KashaLogo />
               </div>
               <div className="hidden sm:block leading-none">
-                <span className="font-[var(--font-display)] font-bold text-[var(--white)] text-[15px] tracking-tight block transition-colors duration-300 group-hover:text-[var(--gold)]">Kasha</span>
-                <span className="block text-[9px] uppercase tracking-[0.25em] text-[var(--gray-500)] mt-[1px]">Multimedia CMS</span>
+                <span className="font-[var(--font-display)] font-bold text-[var(--white)] text-[15px] tracking-tight block transition-colors duration-300 group-hover:text-[var(--gold)]">Kasha Multimedia</span>
+                <span className="block text-[9px] uppercase tracking-[0.25em] text-[var(--gray-500)] mt-[1px]">Rooted in Heritage</span>
               </div>
             </Link>
 

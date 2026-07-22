@@ -8,6 +8,13 @@
   --gold-light: #D4B87A;
   --gold-dim: rgba(201, 169, 110, 0.08);
   --gold-border: rgba(201, 169, 110, 0.12);
+  --terracotta: #B85C38;
+  --terracotta-light: #D4744F;
+  --terracotta-dim: rgba(184, 92, 56, 0.08);
+  --terracotta-border: rgba(184, 92, 56, 0.15);
+  --brand-accent: #E8A849;
+  --brand-dark: #2C1810;
+  --brand-cream: #F5E6D3;
   --black: #090909;
   --black-card: #111111;
   --black-elevated: #161616;
@@ -198,8 +205,8 @@ input, textarea, select { font: inherit; color: inherit; }
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/background-image.jpg') center/cover no-repeat;
-  opacity: 0.06;
+  background: url('/logo.webp') center/contain no-repeat;
+  opacity: 0.04;
 }
 
 .bg-pattern::after {
@@ -672,9 +679,9 @@ input, textarea, select { font: inherit; color: inherit; }
 .admin-login-pattern {
   position: fixed;
   inset: 0;
-  opacity: 0.04;
-  background-image: url(/background-image.jpg);
-  background-size: cover;
+  opacity: 0.03;
+  background-image: url(/logo.webp);
+  background-size: contain;
   background-position: center;
 }
 

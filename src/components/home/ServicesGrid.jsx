@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getPublished } from '../../services/firestore';
-import { Scissors, Paintbrush, Sparkles, User, Droplets, Brush } from 'lucide-react';
+import { Play, BookOpen, Music, Video, Radio, Globe } from 'lucide-react';
 
-const iconMap = { Scissors, Paintbrush, Sparkles, User, Droplets, Brush };
+const iconMap = { Play, BookOpen, Music, Video, Radio, Globe };
 
 export default function ServicesGrid({ section = {} }) {
   const { t, lang } = useLanguage();
@@ -23,7 +23,7 @@ export default function ServicesGrid({ section = {} }) {
   return (
     <section className="section">
       <div className="text-center" style={{ marginBottom: 'clamp(32px, 5vw, 64px)' }}>
-        <p className="label mb-3">{section.label?.[lang] || section.label?.en || t('barbershop')}</p>
+        <p className="label mb-3">{section.label?.[lang] || section.label?.en || t('pillarsTitle')}</p>
         <h2 className="heading-lg">{section.title?.[lang] || section.title?.en || t('servicesTitle')}</h2>
         {(section.subtitle?.[lang] || section.subtitle?.en) && (
           <p className="text-sm text-[var(--gray-500)] mt-3 mx-auto" style={{ maxWidth: '480px' }}>
@@ -35,7 +35,7 @@ export default function ServicesGrid({ section = {} }) {
 
       <div className="grid-auto">
         {displayServices.map((s, i) => {
-          const Icon = iconMap[s.icon] || Scissors;
+          const Icon = iconMap[s.icon] || Play;
           return (
             <Link key={s.id} to="/services" className="card card-pad group">
               <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-[var(--gold-dim)] border border-[var(--gold-border)] flex items-center justify-center" style={{ marginBottom: 'clamp(14px, 2vw, 20px)' }}>

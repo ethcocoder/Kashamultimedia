@@ -72,8 +72,8 @@ export default function BookingSuccess() {
               <span className="text-sm">{booking.time}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--gray-500)' }}>Barber</span>
-              <span className="text-sm">{booking.barber || 'Any Available'}</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--gray-500)' }}>Segment</span>
+              <span className="text-sm">{booking.segment || 'Any Available'}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--gray-500)' }}>Client</span>

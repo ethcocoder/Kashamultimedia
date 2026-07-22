@@ -30,7 +30,7 @@ export default function Hero() {
   }, []);
 
   const hero = { ...DEFAULT_HERO, ...(homePage.hero || {}) };
-  const heroImg = hero.heroImage || site.heroImage || '/background-image.jpg';
+  const heroImg = hero.heroImage || site.heroImage || '/logo.webp';
   const name = site.siteName?.[lang] || 'Kasha';
   const title = hero.title?.[lang] || hero.title?.en || site.siteTagline?.[lang] || t('heroTitle');
   const subtitle = hero.subtitle?.[lang] || hero.subtitle?.en || site.siteDescription?.[lang] || t('heroSubtitle');

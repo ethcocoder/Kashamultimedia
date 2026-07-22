@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Scissors, User, Phone, Mail, FileText, AlertCircle, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
+import { Calendar, Clock, Play, User, Phone, Mail, FileText, AlertCircle, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getAll, getBookingsByDate, createBooking, update as updateBooking } from '../services/firestore';
 import { createBookingImage, svgToPngDataUrl } from '../utils/bookingImage';
@@ -54,7 +54,7 @@ export default function Book() {
     service: '',
     date: '',
     time: '',
-    barber: '',
+    segment: '',
     name: '',
     phone: '',
     email: '',
@@ -109,7 +109,7 @@ export default function Book() {
         service: form.service,
         date: form.date,
         time: form.time,
-        barber: form.barber || 'Any Available',
+        segment: form.segment || 'Any Available',
         name: form.name,
         phone: form.phone,
         email: form.email,
@@ -156,12 +156,12 @@ export default function Book() {
         <div className="text-center" style={{ marginBottom: 'clamp(28px, 5vw, 52px)' }}>
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] anim-pulse" />
-            <div className="label">{t('barbershop')}</div>
+            <div className="label">{t('bookNow')}</div>
             <div className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] anim-pulse" />
           </div>
           <h1 className="heading-lg" style={{ marginBottom: 'clamp(8px, 1.5vw, 14px)' }}>{t('bookNow')}</h1>
           <p className="text-sm text-[var(--gray-500)] mx-auto" style={{ maxWidth: '420px' }}>
-            Choose your service, pick a date and time, and we'll confirm your appointment instantly.
+            Choose a content segment, pick a broadcast date and time, and we'll confirm your participation.
           </p>
           <div className="divider" style={{ marginTop: 'clamp(16px, 2.5vw, 24px)' }} />
         </div>
@@ -183,7 +183,7 @@ export default function Book() {
 
               {/* Section 1: Service */}
               <div className="card card-pad">
-                <SectionHeader icon={Scissors} title="Select Service" step="1" />
+                <SectionHeader icon={Play} title="Select Segment" step="1" />
                 <div>
                   <select
                     value={form.service}
@@ -301,11 +301,11 @@ export default function Book() {
                 <SectionHeader icon={Sparkles} title="Preferences" step="4" />
                 <div className="flex flex-col" style={{ gap: 'clamp(12px, 2vw, 16px)' }}>
                   <div>
-                    <FieldLabel icon={Scissors}>Preferred Barber</FieldLabel>
+                    <FieldLabel icon={Play}>Preferred Segment</FieldLabel>
                     <input
                       type="text"
-                      value={form.barber}
-                      onChange={(e) => update('barber', e.target.value)}
+                      value={form.segment}
+                      onChange={(e) => update('segment', e.target.value)}
                       className="admin-input w-full"
                       placeholder="Any available"
                     />
@@ -385,9 +385,9 @@ export default function Book() {
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-xs" style={{ color: 'var(--gray-500)' }}>Barber</span>
-                      <span className="text-sm" style={{ color: form.barber ? 'var(--white)' : 'var(--gray-700)' }}>
-                        {form.barber || 'Any Available'}
+                      <span className="text-xs" style={{ color: 'var(--gray-500)' }}>Segment</span>
+                      <span className="text-sm" style={{ color: form.segment ? 'var(--white)' : 'var(--gray-700)' }}>
+                        {form.segment || 'Any Available'}
                       </span>
                     </div>
 
@@ -435,9 +435,9 @@ export default function Book() {
 }
 
 function generateBookingSVGLocal(booking) {
-  const { id, service, date, time, name, barber } = booking;
+  const { id, service, date, time, name, segment } = booking;
   const shortId = (id || 'XXXXXX').slice(0, 8).toUpperCase();
-  const displayBarber = barber || 'Any Available';
+  const displaySegment = segment || 'Any Available';
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="500" height="340" viewBox="0 0 500 340">
       <defs>
@@ -452,24 +452,24 @@ function generateBookingSVGLocal(booking) {
       </defs>
       <rect width="500" height="340" rx="16" fill="url(#bg)" stroke="#C9A96E" stroke-width="1.5" opacity="0.95"/>
       <rect x="1" y="1" width="498" height="60" rx="15" fill="url(#gold)" opacity="0.12"/>
-      <text x="250" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#C9A96E">WOREDA 4 BARBERSHOP</text>
+      <text x="250" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#C9A96E">KASHA MULTIMEDIA</text>
       <text x="250" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" letter-spacing="1.5" fill="#888888">BOOKING CONFIRMATION</text>
       <line x1="40" y1="72" x2="460" y2="72" stroke="#C9A96E" stroke-width="0.5" opacity="0.3"/>
       <text x="40" y="100" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">BOOKING ID</text>
       <text x="40" y="118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#C9A96E">${shortId}</text>
-      <text x="280" y="100" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">SERVICE</text>
-      <text x="280" y="118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#f5f5f5">${service || 'Haircut'}</text>
+      <text x="280" y="100" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">SEGMENT</text>
+      <text x="280" y="118" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#f5f5f5">${service || 'Content'}</text>
       <text x="40" y="155" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">DATE</text>
       <text x="40" y="173" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">${date || 'N/A'}</text>
       <text x="200" y="155" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">TIME</text>
       <text x="200" y="173" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">${time || 'N/A'}</text>
-      <text x="360" y="155" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">BARBER</text>
-      <text x="360" y="173" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">${displayBarber}</text>
+      <text x="360" y="155" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">SEGMENT</text>
+      <text x="360" y="173" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">${displaySegment}</text>
       <text x="40" y="210" font-family="Arial, sans-serif" font-size="10" fill="#888888" letter-spacing="1">CLIENT</text>
       <text x="40" y="228" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">${name || 'Guest'}</text>
       <line x1="40" y1="245" x2="460" y2="245" stroke="#C9A96E" stroke-width="0.5" opacity="0.3"/>
       <rect x="160" y="255" width="180" height="42" rx="8" fill="url(#gold)" opacity="0.15" stroke="#C9A96E" stroke-width="0.8"/>
       <text x="250" y="281" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#C9A96E" letter-spacing="4">CONFIRMED</text>
-      <text x="250" y="325" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#555555" letter-spacing="1">Woreda 4 Youth Center Barbershop</text>
+      <text x="250" y="325" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#555555" letter-spacing="1">Kasha Multimedia • Rooted in Heritage, Built to Broadcast</text>
     </svg>`;
 }

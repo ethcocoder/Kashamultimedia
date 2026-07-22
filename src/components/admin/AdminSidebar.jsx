@@ -89,12 +89,12 @@ export default function AdminSidebar() {
                 border: '1px solid rgba(201,169,110,0.18)',
               }}
             >
-              <Video className="w-[18px] h-[18px] text-[var(--gold)]" />
+              <img src="/logo.webp" alt="Kasha" className="w-full h-full object-contain" />
             </div>
             {!collapsed && (
               <div className="overflow-hidden">
                 <div className="font-[var(--font-display)] font-bold text-white text-[15px] leading-tight tracking-tight whitespace-nowrap transition-colors group-hover:text-[var(--gold)]">
-                  Kasha CMS
+                  Kasha Multimedia
                 </div>
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] mt-[2px] whitespace-nowrap" style={{ color: 'rgba(201,169,110,0.5)' }}>
                   Admin Panel

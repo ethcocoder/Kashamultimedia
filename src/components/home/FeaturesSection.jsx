@@ -1,7 +1,7 @@
-import { Sparkles, Scissors, Paintbrush, User, Droplets, Brush, Star, Heart, Shield, Clock, Award, Zap } from 'lucide-react';
+import { Play, BookOpen, Music, Video, Radio, Globe, Star, Heart, Shield, Clock, Award, Zap } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-const iconMap = { Sparkles, Scissors, Paintbrush, User, Droplets, Brush, Star, Heart, Shield, Clock, Award, Zap };
+const iconMap = { Play, BookOpen, Music, Video, Radio, Globe, Star, Heart, Shield, Clock, Award, Zap };
 
 export default function FeaturesSection({ features = [], section = {} }) {
   const { lang } = useLanguage();
@@ -23,7 +23,7 @@ export default function FeaturesSection({ features = [], section = {} }) {
 
       <div className="grid-auto">
         {features.map((feat, i) => {
-          const Icon = iconMap[feat.icon] || Sparkles;
+          const Icon = iconMap[feat.icon] || Play;
           return (
             <div key={i} className="card card-pad group text-center">
               <div className="w-12 h-12 rounded-xl mx-auto mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110" style={{ background: 'var(--gold-dim)', border: '1px solid var(--gold-border)' }}>

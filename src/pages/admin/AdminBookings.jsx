@@ -361,7 +361,7 @@ export default function AdminBookings() {
                     <p className="text-xs" style={{ color: 'var(--gray-500)' }}>{selected.time}</p>
                   </div>
                   <p className="text-xs mt-1" style={{ color: 'var(--gray-500)' }}>
-                    Barber: {selected.barber || 'Any Available'}
+                    Segment: {selected.segment || 'Any Available'}
                   </p>
                 </div>
 
