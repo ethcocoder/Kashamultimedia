@@ -1,30 +1,40 @@
-import { initializeApp, cert, applicationDefault } from 'firebase-admin/app';
+import { initializeApp, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const serviceAccount = JSON.parse(
-  readFileSync(join(__dirname, '..', 'wereda4-barber-firebase-adminsdk-fbsvc-2c9469f752.json'), 'utf8')
-);
+// Instructions for the user:
+// 1. Go to Firebase Console > Project Settings > Service Accounts
+// 2. Click "Generate new private key"
+// 3. Save the JSON file as 'service-account.json' in the project root
+const serviceAccountPath = join(__dirname, '..', 'service-account.json');
+
+if (!existsSync(serviceAccountPath)) {
+  console.error('\nError: service-account.json not found in project root.');
+  console.log('Please download your Firebase Service Account JSON and save it as "service-account.json" in the root directory.');
+  process.exit(1);
+}
+
+const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
 
 initializeApp({
   credential: cert(serviceAccount),
 });
 
-const adminEmail = 'paradox@gmail.com';
-const adminPassword = '12345678';
-const adminDisplayName = 'paradox';
+const adminEmail = process.argv[2] || 'admin@kashamultimedia.com';
+const adminPassword = process.argv[3] || 'KashaCMS2026!';
+const adminDisplayName = 'Kasha Admin';
 
 async function setupAdmin() {
   try {
     let userRecord;
     try {
       userRecord = await getAuth().getUserByEmail(adminEmail);
-      console.log(`Admin user already exists: ${userRecord.uid}`);
+      console.log(`\nAdmin user already exists: ${userRecord.uid}`);
     } catch (e) {
       if (e.code === 'auth/user-not-found') {
         userRecord = await getAuth().createUser({
@@ -32,20 +42,26 @@ async function setupAdmin() {
           password: adminPassword,
           displayName: adminDisplayName,
         });
-        console.log(`Admin user created: ${userRecord.uid}`);
+        console.log(`\nAdmin user created: ${userRecord.uid}`);
       } else {
         throw e;
       }
     }
 
+    // Set custom claims for admin
     await getAuth().setCustomUserClaims(userRecord.uid, { admin: true });
     console.log(`Admin claims set for: ${adminEmail}`);
-    console.log('\nLogin credentials:');
-    console.log(`  Email:    ${adminEmail}`);
-    console.log(`  Password: ${adminPassword}`);
-    console.log(`  Display:  ${adminDisplayName}`);
+    
+    console.log('\n-----------------------------------');
+    console.log('PRODUCTION ADMIN CREDENTIALS');
+    console.log('-----------------------------------');
+    console.log(`Email:    ${adminEmail}`);
+    console.log(`Password: ${adminPassword}`);
+    console.log('-----------------------------------\n');
+    console.log('Keep these credentials secure!');
+    
   } catch (err) {
-    console.error('Error setting up admin:', err.message);
+    console.error('\nError setting up admin:', err.message);
   }
   process.exit(0);
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Scissors, LogIn, Loader2, ArrowRight, Home } from 'lucide-react';
+import { Video, LogIn, Loader2, ArrowRight, Home } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../contexts/LanguageContext';
 import toast from 'react-hot-toast';
@@ -41,10 +41,10 @@ export default function Login() {
 
         <div className="text-center" style={{ marginBottom: 'clamp(28px, 4vw, 40px)' }}>
           <div className="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center transition-all duration-300" style={{ background: 'rgba(201,169,110,0.1)', border: '1px solid rgba(201,169,110,0.15)' }}>
-            <Scissors className="w-7 h-7 text-[var(--gold)]" />
+            <Video className="w-7 h-7 text-[var(--gold)]" />
           </div>
           <h1 className="font-[var(--font-display)] font-bold text-white" style={{ fontSize: 'clamp(20px, 3vw, 24px)' }}>Admin Login</h1>
-          <p className="text-sm mt-1.5" style={{ color: 'var(--gray-500)' }}>Woreda 4 Barber Dashboard</p>
+          <p className="text-sm mt-1.5" style={{ color: 'var(--gray-500)' }}>Kasha Multimedia CMS Dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,7 +56,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="admin-input"
-              placeholder="paradox@gmail.com"
+              placeholder="admin@kashamultimedia.com"
               onFocus={() => setFocused('email')}
               onBlur={() => setFocused(null)}
               style={focused === 'email' ? { borderColor: 'var(--gold)', boxShadow: '0 0 0 3px rgba(201,169,110,0.1)' } : {}}

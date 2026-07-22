@@ -1,18 +1,18 @@
 import { useState, useRef } from 'react';
 import { NavLink, useLocation, Link } from 'react-router-dom';
 import {
-  LayoutDashboard, Scissors, Image, FileText, Star, Settings, Calendar, Home,
-  ChevronsLeft, ChevronsRight, LogOut, X,
+  LayoutDashboard, Image, FileText, Star, Settings, Calendar, Home,
+  ChevronsLeft, ChevronsRight, LogOut, X, Video, Users, Database
 } from 'lucide-react';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const NAV_ITEMS = [
   { to: '/admin', icon: LayoutDashboard, labelKey: 'dashboard', end: true },
-  { to: '/admin/bookings', icon: Calendar, labelKey: 'bookings', accent: '#a78bfa' },
-  { to: '/admin/services', icon: Scissors, labelKey: 'services', accent: '#C9A96E' },
-  { to: '/admin/gallery', icon: Image, labelKey: 'galleryAdmin', accent: '#4ade80' },
   { to: '/admin/blog', icon: FileText, labelKey: 'blogAdmin', accent: '#60a5fa' },
+  { to: '/admin/gallery', icon: Image, labelKey: 'galleryAdmin', accent: '#4ade80' },
+  { to: '/admin/services', icon: Database, labelKey: 'services', accent: '#C9A96E' },
+  { to: '/admin/bookings', icon: Calendar, labelKey: 'bookings', accent: '#a78bfa' },
   { to: '/admin/testimonials', icon: Star, labelKey: 'testimonialsAdmin', accent: '#fbbf24' },
 ];
 
@@ -89,12 +89,12 @@ export default function AdminSidebar() {
                 border: '1px solid rgba(201,169,110,0.18)',
               }}
             >
-              <Scissors className="w-[18px] h-[18px] text-[var(--gold)]" />
+              <Video className="w-[18px] h-[18px] text-[var(--gold)]" />
             </div>
             {!collapsed && (
               <div className="overflow-hidden">
                 <div className="font-[var(--font-display)] font-bold text-white text-[15px] leading-tight tracking-tight whitespace-nowrap transition-colors group-hover:text-[var(--gold)]">
-                  Woreda 4
+                  Kasha CMS
                 </div>
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] mt-[2px] whitespace-nowrap" style={{ color: 'rgba(201,169,110,0.5)' }}>
                   Admin Panel
@@ -157,7 +157,7 @@ export default function AdminSidebar() {
 
                     {/* Label */}
                     {!collapsed && (
-                      <span className={`relative z-10 text-[13px] truncate transition-colors duration-200 ${active ? 'font-semibold' : 'font-medium'}`}>
+                      <span className={`relative z-10 text-[13px] text-white/70 truncate transition-colors duration-200 ${active ? 'font-semibold !text-[var(--gold)]' : 'font-medium'}`}>
                         {t(item.labelKey)}
                       </span>
                     )}

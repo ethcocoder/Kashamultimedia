@@ -1,4 +1,4 @@
-import { Menu, Bell, LogOut, ChevronRight } from 'lucide-react';
+import { Menu, Bell, LogOut, ChevronRight, User } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -19,7 +19,7 @@ const ROUTE_MAP = {
 export default function AdminTopBar() {
   const { toggleMobile } = useSidebar();
   const { lang, setLang } = useLanguage();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const location = useLocation();
 
   const current = ROUTE_MAP[location.pathname] || { label: 'Page', color: 'var(--gray-400)' };
@@ -62,7 +62,7 @@ export default function AdminTopBar() {
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-3">
           <LanguageToggle value={lang} onChange={setLang} />
 
           {/* Notification bell */}
@@ -80,6 +80,12 @@ export default function AdminTopBar() {
               }}
             />
           </button>
+
+          {/* User Profile */}
+          <div className="hidden sm:flex items-center gap-2">
+            <User className="w-4 h-4 text-[var(--gold)]" />
+            <span className="text-xs font-medium text-white">{user?.email || 'Admin'}</span>
+          </div>
 
           {/* Logout */}
           <button

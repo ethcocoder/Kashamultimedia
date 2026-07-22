@@ -9,8 +9,8 @@ export default function AdminSettings() {
   const { t } = useLanguage();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    siteName: { en: '', am: '' },
-    siteTagline: { en: '', am: '' },
+    siteName: { en: 'Kasha Multimedia CMS', am: 'ካሻ ማልቲሚዲያ CMS' },
+    siteTagline: { en: 'Preserving Cultural Heritage', am: 'ባህላዊ ውርስ ማስቀመጥ' },
     siteDescription: { en: '', am: '' },
     address: '', phone: '', email: '', website: '', telegram: '',
     heroImage: '', primaryColor: '#C9A96E', accentColor: '#D4B87A',
@@ -33,7 +33,7 @@ export default function AdminSettings() {
           </div>
           <div>
             <h1 className="font-[var(--font-display)] font-bold text-white" style={{ fontSize: 'clamp(18px, 2.5vw, 24px)' }}>{t('settings')}</h1>
-            <p className="text-xs" style={{ color: 'var(--gray-500)' }}>Configure your barbershop</p>
+            <p className="text-xs" style={{ color: 'var(--gray-500)' }}>Configure Kasha CMS</p>
           </div>
         </div>
         <button onClick={save} disabled={saving} className="btn-primary !py-2.5 !px-4 !text-xs sm:!text-sm">

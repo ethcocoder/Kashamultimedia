@@ -1,76 +1,109 @@
 import { useState, useRef } from 'react';
-import { Upload, X } from 'lucide-react';
-import { uploadImage } from '../../services/upload';
+import { Upload, X, Image as ImageIcon, Video } from 'lucide-react';
+import { uploadFile } from '../../services/upload';
+import { useLanguage } from '../../contexts/LanguageContext';
+import toast from 'react-hot-toast';
 
-export default function ImageUploader({ value, onChange, path = 'uploads' }) {
+export default function ImageUploader({ value, onChange, path = 'uploads', useFirebase = true }) {
   const [preview, setPreview] = useState(value || '');
   const [uploading, setUploading] = useState(false);
-  const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const { t } = useLanguage();
+
+  const isVideo = preview && /\.(mp4|webm|mov|avi|mkv)$/i.test(preview);
 
   const handleFile = async (file) => {
     if (!file) return;
-    setPreview(URL.createObjectURL(file));
+    
+    // Check file size (50MB max)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('File size must be less than 50MB');
+      return;
+    }
+
     setUploading(true);
     try {
-      const url = await uploadImage(file, path);
+      // Create local preview immediately
+      const localUrl = URL.createObjectURL(file);
+      setPreview(localUrl);
+      
+      // Upload to Firebase Storage
+      const url = await uploadFile(file, path, useFirebase);
+      setPreview(url);
       onChange(url);
-    } catch (err) {
-      console.error('Upload failed:', err);
+      toast.success('Upload successful!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Upload failed. Please try again.');
+      if (value) setPreview(value);
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
-  };
-
-  const handleClear = () => {
+  const handleRemove = () => {
     setPreview('');
     onChange('');
-    if (inputRef.current) inputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
-    <div className="glass rounded-xl p-4">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFile(e.target.files[0])}
-      />
+    <div className="space-y-2">
       {preview ? (
-        <div className="relative">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-full h-48 object-cover rounded-lg"
-          />
+        <div className="relative group">
+          {isVideo ? (
+            <video src={preview} controls className="w-full h-48 object-cover rounded-xl bg-black" />
+          ) : (
+            <img src={preview} alt="Preview" className="w-full h-48 object-cover rounded-xl bg-black" />
+          )}
           <button
-            type="button"
-            onClick={handleClear}
-            className="absolute top-2 right-2 p-1 bg-black/60 rounded-full text-white/70 hover:text-white"
+            onClick={handleRemove}
+            className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <X className="w-4 h-4" />
           </button>
-          {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
-              <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin-slow" />
-            </div>
-          )}
         </div>
       ) : (
         <div
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDrop}
-          className="h-48 rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-white/20 transition-colors"
+          className="relative border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer group"
+          style={{
+            borderColor: uploading ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.02)',
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--gold)'; }}
+          onDragLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+          }}
         >
-          <Upload className="w-8 h-8 text-white/20 mb-2" />
-          <p className="text-sm text-white/40">Click or drag to upload</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => e.target.files[0] && handleFile(e.target.files[0])}
+            disabled={uploading}
+          />
+          <div className="flex flex-col items-center gap-2">
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(201,169,110,0.1)' }}>
+              {uploading ? (
+                <Upload className="w-6 h-6 text-[var(--gold)] animate-bounce" />
+              ) : (
+                <ImageIcon className="w-6 h-6 text-[var(--gold)]" />
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white/70">
+                {uploading ? 'Uploading...' : 'Click to upload or drag and drop'}
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--gray-500)' }}>
+                PNG, JPG, GIF, WEBP or MP4, WEBM (max 50MB)
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>

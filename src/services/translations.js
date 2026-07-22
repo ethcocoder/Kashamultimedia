@@ -209,7 +209,7 @@ export const translations = {
     pillar2Desc: "አካላዊ፣ ስነ-ልቦናዊ እና መንፈሳዊ ሕክምና ስርዓቶች እና ባለሙያዎች።",
     
     pillar3: "ተወላጅ ግብርና",
-    pillar3Desc: "ከአካባቢው አየር ንብረት ጋር የተስተካከለ ግብርና እና 牧羊 ዕውቀት።",
+    pillar3Desc: "ከአካባቢው አየር ንብረት ጋር የተስተካከለ ግብርና እና ማህበረሰብ ዕውቀት።",
     
     pillar4: "ባህላዊ ጌታ ስራ",
     pillar4Desc: "ብረታ ብረት ስራ፣ አሸዋ ስራ፣ ቆዳ ስራ፣ ሣጥ ስራ፣ ዓሠሪ ስራ፣ ሕንፃ፣ ምግብ እና ልብስ።",
@@ -258,7 +258,7 @@ export const translations = {
     systemTitle: "ስርዓት ግምገማ",
     systemSubtitle: "ሁሉንም ሞጁሎች ለ ፕላን፣ ለ ምርት፣ ለ ማከማቸት እና ለ ስርጭት",
     
-    capability1: "ክፍል ব্যবস্থাপনা",
+    capability1: "ክፍል አስተዳደር",
     capability1Desc: "በ ካሻ ክፍል ታክስኖሚ ዙሪያ",
     
     capability2: "ሚዲያ ቤተ-መጽሐፍት",

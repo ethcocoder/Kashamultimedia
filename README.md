@@ -85,7 +85,7 @@ The system follows a five-stage editorial approval pipeline:
 - **Styling**: Tailwind CSS
 - **Backend**: Express.js
 - **Database**: Firebase Firestore
-- **Storage**: Firebase Storage
+- **Storage**: Firebase Storage & Local (public/upload/images)
 - **Deployment**: Docker + Nginx
 
 ## Getting Started
@@ -93,6 +93,7 @@ The system follows a five-stage editorial approval pipeline:
 ### Prerequisites
 - Node.js 22+
 - npm or pnpm
+- Firebase Service Account (for admin setup)
 
 ### Installation
 
@@ -123,9 +124,15 @@ npm run preview
 
 ### Admin Setup
 
+To set up the initial admin account:
+1. Download your Firebase Service Account JSON from Firebase Console > Project Settings > Service Accounts.
+2. Save the file as `service-account.json` in the project root directory.
+3. Run the setup script:
+
 ```bash
-# Create admin user
-npm run setup-admin
+npm run setup-admin [email] [password]
+# Default email: admin@kashamultimedia.com
+# Default password: KashaCMS2026!
 ```
 
 ## Environment Variables
@@ -241,6 +248,6 @@ For inquiries about the Kasha Multimedia CMS, please contact:
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 2.0.0  
 **Last Updated**: July 2026  
 **Status**: Production Ready
