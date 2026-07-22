@@ -1,0 +1,17 @@
+{
+  "name": "Woreda 4 Barbershop",
+  "short_name": "Woreda4 Barber",
+  "description": "Premium grooming experience in Addis Ababa. Book your appointment today.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1120",
+  "theme_color": "#0B1120",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
