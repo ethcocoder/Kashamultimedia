@@ -24,12 +24,16 @@
 - [x] Define editable data models for site settings, hero, programmes, services, events, journal entries, and contact details.
 - [x] Create and migrate the database schema for all editable public-site content.
 - [x] Add secure administrator-only CRUD APIs with publishing controls and content ordering.
-- [ ] Convert all public landing-page sections from hardcoded copy into dynamic managed content.
+- [x] Convert all public landing-page sections from hardcoded copy into dynamic managed content.
 - [x] Build a professional Broadcast Atelier admin dashboard overview with content status and quick actions.
 - [x] Build dedicated admin management screens for every editable content area.
-- [ ] Add admin-facing validation, loading, error, empty, and success states.
-- [ ] Validate public updates, dashboard management workflows, responsive behavior, security, and repository sync.
-- [ ] Move ticker, section rails, hero-footer, image-label, and footer strings into administrator-managed site settings.
-- [ ] Add visible mutation error feedback to all control-room saves, publishing actions, inbox actions, and media uploads.
-- [ ] Verify the professional control room at tablet and mobile widths, including navigation, editors, and tables.
-- [ ] Push the completed dynamic-content control-room revision to the target repository.
+- [x] Add admin-facing validation, loading, error, empty, and success states.
+- [x] Validate public updates, dashboard management workflows, responsive behavior, security, and repository sync.
+- [x] Move ticker, section rails, hero footer text, image captions, and footer copy into administrator-managed site settings.
+- [x] Add visible mutation error feedback to all control-room saves, publishing actions, inbox actions, and media uploads.
+- [x] Verify the professional control room at tablet and mobile widths, including navigation, editors, and tables.
+- [x] Push the completed dynamic-content control-room revision to the target repository.
+- [x] Verify table-based programme management and its editor sheet at a mobile breakpoint.
+- [x] Verify dashboard, settings, and programme management at a tablet breakpoint.
+- [x] Exercise mobile and tablet sidebar navigation with the menu control.
+- [x] Exercise the programme editor sheet at a mobile breakpoint, including cancel and save controls.
