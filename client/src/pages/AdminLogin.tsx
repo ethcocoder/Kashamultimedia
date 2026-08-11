@@ -1,8 +1,11 @@
-// Broadcast Atelier direction: admin access uses the same paper, ink, and signal-red language while clearly separating operational entry from the public story.
+// Broadcast Atelier direction: admin access uses the same paper, ink, and signal-red language while securely separating operational entry from the public story.
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, LockKeyhole, LogOut, Moon, Sun } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTheme } from "@/contexts/ThemeContext";
+import { firebaseAuth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut as signOutFirebase } from "firebase/auth";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
@@ -10,15 +13,36 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email || !password) {
       setMessage("Enter both fields to continue.");
       return;
     }
-    localStorage.setItem("kasha-admin-session", "preview-session");
-    setLocation("/admin/dashboard");
+    setMessage("");
+    setIsSubmitting(true);
+    try {
+      const credential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+      const idToken = await credential.user.getIdToken(true);
+      const response = await fetch("/api/firebase/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ idToken }),
+      });
+      const result = await response.json() as { success?: boolean; role?: string; error?: string };
+      if (!response.ok || result.role !== "admin") {
+        await signOutFirebase(firebaseAuth);
+        throw new Error(result.error ?? "This Firebase account does not have administrator access.");
+      }
+      setLocation("/admin/dashboard");
+    } catch (error: unknown) {
+      setMessage(error instanceof Error ? error.message : "Sign-in could not be completed.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -38,9 +62,9 @@ export default function AdminLogin() {
           <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@kashamultimedia.et" autoComplete="email" /></label>
           <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" /></label>
           {message && <p className="admin-error" role="alert">{message}</p>}
-          <button className="button button-signal" type="submit">Enter the desk <ArrowUpRight size={16} /></button>
+          <button className="button button-signal" type="submit" disabled={isSubmitting}>{isSubmitting ? "Verifying…" : "Enter the desk"} <ArrowUpRight size={16} /></button>
         </form>
-        <p className="admin-note">Frontend access shell for this static build. Connect your production authentication provider before using it for protected content.</p>
+        <p className="admin-note">Firebase verifies your email/password before the Kasha server issues the secure admin session.</p>
       </section>
     </main>
   );
@@ -49,15 +73,20 @@ export default function AdminLogin() {
 export function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user, loading, logout } = useAuth({ redirectOnUnauthenticated: true, redirectPath: "/admin" });
 
   useEffect(() => {
-    if (!localStorage.getItem("kasha-admin-session")) setLocation("/admin");
-  }, [setLocation]);
+    if (!loading && user?.role !== "admin") setLocation("/admin");
+  }, [loading, setLocation, user?.role]);
 
-  const signOut = () => {
-    localStorage.removeItem("kasha-admin-session");
+  const signOut = async () => {
+    await Promise.allSettled([logout(), signOutFirebase(firebaseAuth)]);
     setLocation("/admin");
   };
+
+  if (loading || user?.role !== "admin") {
+    return <main className="admin-shell"><div className="admin-topbar"><a className="admin-back" href="/"><ArrowLeft size={15} /> Back to Kasha</a></div><section className="admin-card"><p className="eyebrow">Kasha desk</p><p className="admin-intro">Checking your secure session…</p></section></main>;
+  }
 
   return (
     <main className="admin-shell">
