@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+// Broadcast Atelier direction: theme state keeps archive ivory and ink charcoal available as two intentional editorial modes.
 type Theme = "light" | "dark";
 
 interface ThemeContextType {
