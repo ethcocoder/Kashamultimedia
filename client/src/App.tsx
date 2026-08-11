@@ -2,6 +2,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AdminLogin, { AdminDashboard } from "@/pages/AdminLogin";
+import { AdminContentRoute } from "@/pages/AdminControlRoom";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/admin" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/:section" component={AdminContentRoute} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

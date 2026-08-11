@@ -8,6 +8,20 @@
       "when": 1786470357723,
       "tag": "0000_chief_wrecker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1786471864085,
+      "tag": "0001_pretty_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786472810982,
+      "tag": "0002_uneven_guardian",
+      "breakpoints": true
     }
   ]
 }

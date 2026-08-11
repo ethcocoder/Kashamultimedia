@@ -1,28 +1,88 @@
+// Broadcast Atelier direction: public read APIs are quiet and dependable, while administrator procedures put every Kasha signal under intentional editorial control.
+import { TRPCError } from "@trpc/server";
+import { and, asc, desc, eq } from "drizzle-orm";
+import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
+import { events, inquiries, journalEntries, mediaAssets, programs, services, siteSettings } from "../drizzle/schema";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, publicProcedure, router } from "./_core/trpc";
+import { dashboardSummary, ensureContentSeeded, publicContent, requireDb } from "./db";
+import { storagePut } from "./storage";
+
+const idInput = z.object({ id: z.number().int().positive() });
+const publishedInput = z.object({ id: z.number().int().positive(), isPublished: z.boolean() });
+const orderInput = z.object({ id: z.number().int().positive(), sortOrder: z.number().int().min(0) });
+const optionalUrl = z.string().url().or(z.literal(""));
+
+const settingsInput = z.object({
+  siteName: z.string().min(1).max(160), brandLine: z.string().min(1).max(160), heroEyebrow: z.string().min(1).max(220), heroTitle: z.string().min(1).max(240), heroAccent: z.string().min(1).max(240), heroIntro: z.string().min(1), heroCtaLabel: z.string().min(1).max(120), heroImageUrl: z.string().min(1), heroAsideTitle: z.string().min(1).max(240), heroAsideBody: z.string().min(1), heroFooterIndex: z.string().min(1).max(80), heroFooterDescriptor: z.string().min(1).max(240), tickerItems: z.string().min(1),
+  aboutRailLabel: z.string().min(1).max(160), aboutEyebrow: z.string().min(1).max(220), aboutTitle: z.string().min(1).max(240), aboutAccent: z.string().min(1).max(240), aboutBody: z.string().min(1), aboutQuote: z.string().min(1), aboutImageUrl: z.string().min(1), aboutCaptionLeft: z.string().min(1).max(240), aboutCaptionRight: z.string().min(1).max(240),
+  programsRailLabel: z.string().min(1).max(160), programsEyebrow: z.string().min(1).max(220), programsTitle: z.string().min(1).max(240), programsAccent: z.string().min(1).max(240), programsSummary: z.string().min(1), audioImageLabel: z.string().min(1).max(160), audioCaptionLabel: z.string().min(1).max(160),
+  servicesRailLabel: z.string().min(1).max(160), servicesEyebrow: z.string().min(1).max(220), servicesTitle: z.string().min(1).max(240), servicesAccent: z.string().min(1).max(240), servicesSummary: z.string().min(1),
+  eventEyebrow: z.string().min(1).max(220), eventTitle: z.string().min(1).max(240), eventAccent: z.string().min(1).max(240), eventBody: z.string().min(1), eventCtaLabel: z.string().min(1).max(120), eventImageUrl: z.string().min(1), eventImageLabel: z.string().min(1).max(200),
+  journalRailLabel: z.string().min(1).max(160), journalEyebrow: z.string().min(1).max(220), journalTitle: z.string().min(1).max(240), journalAccent: z.string().min(1).max(240),
+  contactRailLabel: z.string().min(1).max(160), contactEyebrow: z.string().min(1).max(220), contactTitle: z.string().min(1).max(240), contactAccent: z.string().min(1).max(240), contactBody: z.string().min(1), contactEmail: z.string().email(), contactLocation: z.string().min(1).max(320), footerNavigateLabel: z.string().min(1).max(120), footerFollowLabel: z.string().min(1).max(160), footerBuiltLine: z.string().min(1).max(240), instagramUrl: optionalUrl, youtubeUrl: optionalUrl, facebookUrl: optionalUrl,
+});
+
+const programInput = z.object({ title: z.string().min(1).max(180), subtitle: z.string().min(1).max(180), description: z.string().min(1), tag: z.string().min(1).max(120), imageUrl: z.string().nullable().optional(), featureTitle: z.string().nullable().optional(), featureSubtitle: z.string().nullable().optional(), sortOrder: z.number().int().min(0).default(0), isPublished: z.boolean().default(true) });
+const serviceInput = z.object({ title: z.string().min(1).max(180), description: z.string().min(1), iconKey: z.enum(["mic", "camera", "calendar", "radio", "sparkles", "film"]).default("mic"), sortOrder: z.number().int().min(0).default(0), isPublished: z.boolean().default(true) });
+const eventInput = z.object({ title: z.string().min(1).max(220), description: z.string().min(1), imageUrl: z.string().min(1), ctaLabel: z.string().min(1).max(120), ctaTarget: z.string().min(1).max(240), sortOrder: z.number().int().min(0).default(0), isPublished: z.boolean().default(true) });
+const journalInput = z.object({ title: z.string().min(1).max(260), category: z.string().min(1).max(100), dateLabel: z.string().min(1).max(120), body: z.string().nullable().optional(), sortOrder: z.number().int().min(0).default(0), isPublished: z.boolean().default(true) });
+
+function createCrudRouter(table: any, input: any) {
+  return router({
+    list: adminProcedure.query(async () => { await ensureContentSeeded(); const db = await requireDb(); return db.select().from(table).orderBy(asc(table.sortOrder)); }),
+    create: adminProcedure.input(input).mutation(async ({ input: values }) => { const db = await requireDb(); const [result] = await db.insert(table).values(values as any).$returningId(); return { id: result.id }; }),
+    update: adminProcedure.input(idInput.merge(input.partial())).mutation(async ({ input: values }) => { const { id, ...updates } = values; const db = await requireDb(); await db.update(table).set(updates).where(eq(table.id, id)); return { success: true }; }),
+    setPublished: adminProcedure.input(publishedInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(table).set({ isPublished: input.isPublished }).where(eq(table.id, input.id)); return { success: true }; }),
+    setOrder: adminProcedure.input(orderInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(table).set({ sortOrder: input.sortOrder }).where(eq(table.id, input.id)); return { success: true }; }),
+    remove: adminProcedure.input(idInput).mutation(async ({ input }) => { const db = await requireDb(); await db.delete(table).where(eq(table.id, input.id)); return { success: true }; }),
+  });
+}
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+    me: publicProcedure.query((opts) => opts.ctx.user),
+    logout: publicProcedure.mutation(({ ctx }) => { ctx.res.clearCookie(COOKIE_NAME, { ...getSessionCookieOptions(ctx.req), maxAge: -1 }); return { success: true } as const; }),
+  }),
+  public: router({
+    homepage: publicProcedure.query(() => publicContent()),
+    submitInquiry: publicProcedure.input(z.object({ name: z.string().min(2).max(180), email: z.string().email(), brief: z.string().min(8).max(4000) })).mutation(async ({ input }) => { const db = await requireDb(); const [result] = await db.insert(inquiries).values(input).$returningId(); return { id: result.id, success: true }; }),
+  }),
+  admin: router({
+    dashboard: adminProcedure.query(() => dashboardSummary()),
+    settings: router({
+      get: adminProcedure.query(async () => { await ensureContentSeeded(); const db = await requireDb(); const [settings] = await db.select().from(siteSettings).limit(1); return settings; }),
+      update: adminProcedure.input(settingsInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(siteSettings).set(input).where(eq(siteSettings.id, 1)); return { success: true }; }),
+    }),
+    programs: createCrudRouter(programs, programInput),
+    services: createCrudRouter(services, serviceInput),
+    events: createCrudRouter(events, eventInput),
+    journal: createCrudRouter(journalEntries, journalInput),
+    inquiries: router({
+      list: adminProcedure.query(async () => { const db = await requireDb(); return db.select().from(inquiries).orderBy(desc(inquiries.createdAt)); }),
+      updateStatus: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["new", "read", "replied", "archived"]) })).mutation(async ({ input }) => { const db = await requireDb(); await db.update(inquiries).set({ status: input.status }).where(eq(inquiries.id, input.id)); return { success: true }; }),
+      remove: adminProcedure.input(idInput).mutation(async ({ input }) => { const db = await requireDb(); await db.delete(inquiries).where(eq(inquiries.id, input.id)); return { success: true }; }),
+    }),
+    media: router({
+      list: adminProcedure.query(async () => { const db = await requireDb(); return db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt)); }),
+      upload: adminProcedure.input(z.object({ fileName: z.string().min(1).max(255), altText: z.string().min(1).max(320), category: z.string().min(1).max(100), dataUrl: z.string().min(20) })).mutation(async ({ input }) => {
+        const match = input.dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+        if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Choose a valid image file" });
+        const [, contentType, payload] = match;
+        if (!contentType.startsWith("image/")) throw new TRPCError({ code: "BAD_REQUEST", message: "Only image uploads are supported" });
+        const bytes = Buffer.from(payload, "base64");
+        if (bytes.byteLength > 8 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Images must be 8 MB or smaller" });
+        const uploaded = await storagePut(`kasha-media/${Date.now()}-${input.fileName}`, bytes, contentType);
+        const db = await requireDb();
+        const [result] = await db.insert(mediaAssets).values({ fileName: input.fileName, storageKey: uploaded.key, url: uploaded.url, altText: input.altText, category: input.category }).$returningId();
+        return { id: result.id, ...uploaded };
+      }),
+      remove: adminProcedure.input(idInput).mutation(async ({ input }) => { const db = await requireDb(); await db.delete(mediaAssets).where(eq(mediaAssets.id, input.id)); return { success: true }; }),
     }),
   }),
-
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
 });
 
 export type AppRouter = typeof appRouter;
