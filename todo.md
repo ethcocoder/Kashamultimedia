@@ -37,3 +37,11 @@
 - [x] Verify dashboard, settings, and programme management at a tablet breakpoint.
 - [x] Exercise mobile and tablet sidebar navigation with the menu control.
 - [x] Exercise the programme editor sheet at a mobile breakpoint, including cancel and save controls.
+
+## Google Drive Image Workflow
+
+- [ ] Accept administrator-entered Google Drive sharing links for every public image field.
+- [ ] Normalize supported Drive URLs into display-ready image URLs without exposing credentials.
+- [ ] Replace existing image-field guidance and the media desk with the manual Drive-link workflow.
+- [ ] Add validation and useful error feedback for unsupported or private Google Drive links.
+- [ ] Verify public image rendering, build, checkpoint, and repository synchronization.

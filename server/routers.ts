@@ -8,7 +8,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { dashboardSummary, ensureContentSeeded, publicContent, requireDb } from "./db";
-import { storagePut } from "./storage";
+import { normalizeImageSource, requireGoogleDriveImage } from "./googleDriveImages";
 
 const idInput = z.object({ id: z.number().int().positive() });
 const publishedInput = z.object({ id: z.number().int().positive(), isPublished: z.boolean() });
@@ -33,8 +33,8 @@ const journalInput = z.object({ title: z.string().min(1).max(260), category: z.s
 function createCrudRouter(table: any, input: any) {
   return router({
     list: adminProcedure.query(async () => { await ensureContentSeeded(); const db = await requireDb(); return db.select().from(table).orderBy(asc(table.sortOrder)); }),
-    create: adminProcedure.input(input).mutation(async ({ input: values }) => { const db = await requireDb(); const [result] = await db.insert(table).values(values as any).$returningId(); return { id: result.id }; }),
-    update: adminProcedure.input(idInput.merge(input.partial())).mutation(async ({ input: values }) => { const { id, ...updates } = values; const db = await requireDb(); await db.update(table).set(updates).where(eq(table.id, id)); return { success: true }; }),
+    create: adminProcedure.input(input).mutation(async ({ input: rawValues }) => { const values = rawValues as Record<string, unknown>; const imageUrl = typeof values.imageUrl === "string" && values.imageUrl ? normalizeImageSource(values.imageUrl) : values.imageUrl; const db = await requireDb(); const [result] = await db.insert(table).values({ ...values, imageUrl } as any).$returningId(); return { id: result.id }; }),
+    update: adminProcedure.input(idInput.merge(input.partial())).mutation(async ({ input: rawValues }) => { const values = rawValues as Record<string, unknown>; const { id, ...updates } = values; const imageUrl = typeof updates.imageUrl === "string" && updates.imageUrl ? normalizeImageSource(updates.imageUrl) : updates.imageUrl; const db = await requireDb(); await db.update(table).set({ ...updates, imageUrl } as any).where(eq(table.id, id as number)); return { success: true }; }),
     setPublished: adminProcedure.input(publishedInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(table).set({ isPublished: input.isPublished }).where(eq(table.id, input.id)); return { success: true }; }),
     setOrder: adminProcedure.input(orderInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(table).set({ sortOrder: input.sortOrder }).where(eq(table.id, input.id)); return { success: true }; }),
     remove: adminProcedure.input(idInput).mutation(async ({ input }) => { const db = await requireDb(); await db.delete(table).where(eq(table.id, input.id)); return { success: true }; }),
@@ -55,7 +55,7 @@ export const appRouter = router({
     dashboard: adminProcedure.query(() => dashboardSummary()),
     settings: router({
       get: adminProcedure.query(async () => { await ensureContentSeeded(); const db = await requireDb(); const [settings] = await db.select().from(siteSettings).limit(1); return settings; }),
-      update: adminProcedure.input(settingsInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(siteSettings).set(input).where(eq(siteSettings.id, 1)); return { success: true }; }),
+      update: adminProcedure.input(settingsInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(siteSettings).set({ ...input, heroImageUrl: normalizeImageSource(input.heroImageUrl), aboutImageUrl: normalizeImageSource(input.aboutImageUrl), eventImageUrl: normalizeImageSource(input.eventImageUrl) }).where(eq(siteSettings.id, 1)); return { success: true }; }),
     }),
     programs: createCrudRouter(programs, programInput),
     services: createCrudRouter(services, serviceInput),
@@ -68,17 +68,11 @@ export const appRouter = router({
     }),
     media: router({
       list: adminProcedure.query(async () => { const db = await requireDb(); return db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt)); }),
-      upload: adminProcedure.input(z.object({ fileName: z.string().min(1).max(255), altText: z.string().min(1).max(320), category: z.string().min(1).max(100), dataUrl: z.string().min(20) })).mutation(async ({ input }) => {
-        const match = input.dataUrl.match(/^data:([^;]+);base64,(.+)$/);
-        if (!match) throw new TRPCError({ code: "BAD_REQUEST", message: "Choose a valid image file" });
-        const [, contentType, payload] = match;
-        if (!contentType.startsWith("image/")) throw new TRPCError({ code: "BAD_REQUEST", message: "Only image uploads are supported" });
-        const bytes = Buffer.from(payload, "base64");
-        if (bytes.byteLength > 8 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Images must be 8 MB or smaller" });
-        const uploaded = await storagePut(`kasha-media/${Date.now()}-${input.fileName}`, bytes, contentType);
+      connectDrive: adminProcedure.input(z.object({ fileName: z.string().min(1).max(255), altText: z.string().min(1).max(320), category: z.string().min(1).max(100), driveLink: z.string().url() })).mutation(async ({ input }) => {
+        const driveImage = requireGoogleDriveImage(input.driveLink);
         const db = await requireDb();
-        const [result] = await db.insert(mediaAssets).values({ fileName: input.fileName, storageKey: uploaded.key, url: uploaded.url, altText: input.altText, category: input.category }).$returningId();
-        return { id: result.id, ...uploaded };
+        const [result] = await db.insert(mediaAssets).values({ fileName: input.fileName, storageKey: `google-drive:${driveImage.fileId}`, url: driveImage.url, altText: input.altText, category: input.category }).$returningId();
+        return { id: result.id, ...driveImage };
       }),
       remove: adminProcedure.input(idInput).mutation(async ({ input }) => { const db = await requireDb(); await db.delete(mediaAssets).where(eq(mediaAssets.id, input.id)); return { success: true }; }),
     }),
