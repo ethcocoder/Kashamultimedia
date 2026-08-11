@@ -33,8 +33,8 @@ const journalInput = z.object({ title: z.string().min(1).max(260), category: z.s
 function createCrudRouter(table: any, input: any) {
   return router({
     list: adminProcedure.query(async () => { await ensureContentSeeded(); const db = await requireDb(); return db.select().from(table).orderBy(asc(table.sortOrder)); }),
-    create: adminProcedure.input(input).mutation(async ({ input: rawValues }) => { const values = rawValues as Record<string, unknown>; const imageUrl = typeof values.imageUrl === "string" && values.imageUrl ? normalizeImageSource(values.imageUrl) : values.imageUrl; const db = await requireDb(); const [result] = await db.insert(table).values({ ...values, imageUrl } as any).$returningId(); return { id: result.id }; }),
-    update: adminProcedure.input(idInput.merge(input.partial())).mutation(async ({ input: rawValues }) => { const values = rawValues as Record<string, unknown>; const { id, ...updates } = values; const imageUrl = typeof updates.imageUrl === "string" && updates.imageUrl ? normalizeImageSource(updates.imageUrl) : updates.imageUrl; const db = await requireDb(); await db.update(table).set({ ...updates, imageUrl } as any).where(eq(table.id, id as number)); return { success: true }; }),
+    create: adminProcedure.input(input).mutation(async ({ input: rawValues }) => { const values = rawValues as Record<string, unknown>; const imageUrl = typeof values.imageUrl === "string" && values.imageUrl ? await normalizeImageSource(values.imageUrl) : values.imageUrl; const db = await requireDb(); const [result] = await db.insert(table).values({ ...values, imageUrl } as any).$returningId(); return { id: result.id }; }),
+    update: adminProcedure.input(idInput.merge(input.partial())).mutation(async ({ input: rawValues }) => { const values = rawValues as Record<string, unknown>; const { id, ...updates } = values; const imageUrl = typeof updates.imageUrl === "string" && updates.imageUrl ? await normalizeImageSource(updates.imageUrl) : updates.imageUrl; const db = await requireDb(); await db.update(table).set({ ...updates, imageUrl } as any).where(eq(table.id, id as number)); return { success: true }; }),
     setPublished: adminProcedure.input(publishedInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(table).set({ isPublished: input.isPublished }).where(eq(table.id, input.id)); return { success: true }; }),
     setOrder: adminProcedure.input(orderInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(table).set({ sortOrder: input.sortOrder }).where(eq(table.id, input.id)); return { success: true }; }),
     remove: adminProcedure.input(idInput).mutation(async ({ input }) => { const db = await requireDb(); await db.delete(table).where(eq(table.id, input.id)); return { success: true }; }),
@@ -55,7 +55,7 @@ export const appRouter = router({
     dashboard: adminProcedure.query(() => dashboardSummary()),
     settings: router({
       get: adminProcedure.query(async () => { await ensureContentSeeded(); const db = await requireDb(); const [settings] = await db.select().from(siteSettings).limit(1); return settings; }),
-      update: adminProcedure.input(settingsInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(siteSettings).set({ ...input, heroImageUrl: normalizeImageSource(input.heroImageUrl), aboutImageUrl: normalizeImageSource(input.aboutImageUrl), eventImageUrl: normalizeImageSource(input.eventImageUrl) }).where(eq(siteSettings.id, 1)); return { success: true }; }),
+      update: adminProcedure.input(settingsInput).mutation(async ({ input }) => { const db = await requireDb(); await db.update(siteSettings).set({ ...input, heroImageUrl: await normalizeImageSource(input.heroImageUrl), aboutImageUrl: await normalizeImageSource(input.aboutImageUrl), eventImageUrl: await normalizeImageSource(input.eventImageUrl) }).where(eq(siteSettings.id, 1)); return { success: true }; }),
     }),
     programs: createCrudRouter(programs, programInput),
     services: createCrudRouter(services, serviceInput),
@@ -69,7 +69,7 @@ export const appRouter = router({
     media: router({
       list: adminProcedure.query(async () => { const db = await requireDb(); return db.select().from(mediaAssets).orderBy(desc(mediaAssets.createdAt)); }),
       connectDrive: adminProcedure.input(z.object({ fileName: z.string().min(1).max(255), altText: z.string().min(1).max(320), category: z.string().min(1).max(100), driveLink: z.string().url() })).mutation(async ({ input }) => {
-        const driveImage = requireGoogleDriveImage(input.driveLink);
+        const driveImage = await requireGoogleDriveImage(input.driveLink);
         const db = await requireDb();
         const [result] = await db.insert(mediaAssets).values({ fileName: input.fileName, storageKey: `google-drive:${driveImage.fileId}`, url: driveImage.url, altText: input.altText, category: input.category }).$returningId();
         return { id: result.id, ...driveImage };

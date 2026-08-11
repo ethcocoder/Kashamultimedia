@@ -40,8 +40,10 @@
 
 ## Google Drive Image Workflow
 
-- [ ] Accept administrator-entered Google Drive sharing links for every public image field.
-- [ ] Normalize supported Drive URLs into display-ready image URLs without exposing credentials.
-- [ ] Replace existing image-field guidance and the media desk with the manual Drive-link workflow.
-- [ ] Add validation and useful error feedback for unsupported or private Google Drive links.
-- [ ] Verify public image rendering, build, checkpoint, and repository synchronization.
+- [x] Accept administrator-entered Google Drive sharing links for every public image field.
+- [x] Normalize supported Drive URLs into display-ready image URLs without exposing credentials.
+- [x] Replace existing image-field guidance and the media desk with the manual Drive-link workflow.
+- [x] Add validation and useful error feedback for unsupported or private Google Drive links.
+- [x] Verify public image rendering, build, checkpoint, and repository synchronization.
+- [x] Reject Drive links that do not resolve to publicly accessible image content.
+- [x] Verify a real shared Google Drive image through the admin editor and public landing page, then restore the original Kasha asset.

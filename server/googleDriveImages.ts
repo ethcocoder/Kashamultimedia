@@ -24,20 +24,38 @@ export function parseGoogleDriveImageLink(value: string): GoogleDriveImage | nul
   }
 }
 
-export function normalizeImageSource(value: string): string {
+export async function verifyGoogleDriveImagePublic(driveImage: GoogleDriveImage): Promise<GoogleDriveImage> {
+  let response: Response;
+  try {
+    response = await fetch(driveImage.url, { redirect: "follow", signal: AbortSignal.timeout(10_000) });
+  } catch {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Kasha could not reach this Google Drive image. Check the sharing link and try again." });
+  }
+
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  if (!response.ok || !contentType.startsWith("image/")) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "This Google Drive file is not publicly available as an image. In Google Drive, set General access to Anyone with the link, then copy the sharing link again.",
+    });
+  }
+  return driveImage;
+}
+
+export async function normalizeImageSource(value: string): Promise<string> {
   const legacySource = value.startsWith("/manus-storage/") || value.startsWith("https://manus-storage/");
   if (legacySource) return value;
   const driveImage = parseGoogleDriveImageLink(value);
-  if (driveImage) return driveImage.url;
+  if (driveImage) return (await verifyGoogleDriveImagePublic(driveImage)).url;
   throw new TRPCError({
     code: "BAD_REQUEST",
     message: "Use a Google Drive sharing link for this image. Set General access to Anyone with the link before saving.",
   });
 }
 
-export function requireGoogleDriveImage(value: string): GoogleDriveImage {
+export async function requireGoogleDriveImage(value: string): Promise<GoogleDriveImage> {
   const driveImage = parseGoogleDriveImageLink(value);
-  if (driveImage) return driveImage;
+  if (driveImage) return verifyGoogleDriveImagePublic(driveImage);
   throw new TRPCError({
     code: "BAD_REQUEST",
     message: "Enter a valid Google Drive sharing link. Set General access to Anyone with the link before saving.",
